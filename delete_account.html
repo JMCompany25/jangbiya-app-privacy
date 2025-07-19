@@ -70,7 +70,7 @@
             padding: 14px;
             border: none;
             border-radius: 8px;
-            background-color: #dc3545; /* 삭제 버튼은 붉은색으로 변경 */
+            background-color: #007bff; /* ✨ 파란색으로 되돌림 (삭제 버튼은 다음 단계에서 붉은색으로 변경) */
             color: white;
             font-size: 1rem;
             font-weight: bold;
@@ -78,6 +78,12 @@
             transition: background-color 0.2s;
         }
         button:hover {
+            background-color: #0056b3;
+        }
+        button.delete-btn { /* ✨ 삭제 버튼 전용 스타일 추가 */
+            background-color: #dc3545;
+        }
+        button.delete-btn:hover { /* ✨ 삭제 버튼 전용 호버 스타일 추가 */
             background-color: #c82333;
         }
         button:disabled {
@@ -125,7 +131,8 @@
             <input type="tel" id="phone-number" placeholder="휴대폰 번호 ('-' 없이 입력)" required>
         </div>
         <div class="form-group otp-section" id="otp-step">
-            <input type="text" id="otp-code" placeholder="받으신 인증번호 6자리" required>
+            <!-- ✨ 변경점 1: disabled 속성 추가 -->
+            <input type="text" id="otp-code" placeholder="받으신 인증번호 6자리" required disabled>
         </div>
 
         <button type="submit" id="submit-button">인증번호 받기</button>
@@ -145,7 +152,7 @@
     const submitButton = document.getElementById('submit-button');
     const messageArea = document.getElementById('message-area');
 
-    let currentStep = 'phone'; // 현재 단계 (phone or otp)
+    let currentStep = 'phone';
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -159,7 +166,8 @@
             await handleVerifyAndDelele();
         }
 
-        submitButton.disabled = false;
+        // ✨ 버튼 비활성화 로직은 각 함수 내부에서 처리하도록 변경
+        // submitButton.disabled = false; 
     });
 
     async function handleSendOtp() {
@@ -183,15 +191,19 @@
             messageArea.classList.add('success');
             messageArea.textContent = result.message;
             
-            // 다음 단계로 전환
             currentStep = 'otp';
-            phoneNumberInput.disabled = true; // 전화번호 수정 방지
+            phoneNumberInput.disabled = true;
             otpStep.style.display = 'block';
+            otpInput.disabled = false; // ✨ 변경점 2: OTP 입력창 활성화
+            otpInput.focus(); // ✨ 변경점 3: OTP 입력창으로 자동 포커스
             submitButton.textContent = '계정 영구 삭제';
+            submitButton.classList.add('delete-btn'); // ✨ 변경점 4: 버튼을 붉은색으로 변경
+            submitButton.disabled = false; // ✨ 버튼 다시 활성화
 
         } catch (error) {
             messageArea.classList.add('error');
             messageArea.textContent = error.message;
+            submitButton.disabled = false; // ✨ 에러 발생 시 버튼 다시 활성화
         }
     }
 
@@ -217,14 +229,15 @@
             messageArea.classList.add('success');
             messageArea.textContent = result.message;
 
-            // 성공 시 모든 입력 비활성화
             otpInput.disabled = true;
-            submitButton.disabled = true;
-            submitButton.style.backgroundColor = '#28a745'; // 성공 색상으로 변경
+            // submitButton.disabled = true; // ✨ 성공 시 버튼은 계속 비활성화 상태 유지
+            submitButton.style.backgroundColor = '#28a745';
+            submitButton.textContent = '삭제 완료';
 
         } catch (error) {
             messageArea.classList.add('error');
             messageArea.textContent = error.message;
+            submitButton.disabled = false; // ✨ 에러 발생 시 버튼 다시 활성화
         }
     }
 </script>
